@@ -224,7 +224,7 @@
       },
 
       mouseUp: function () {
-        if (this.progress >= 1.0) {
+        if (this.sound === null || this.progress >= 1.0) {
           showSoundModal(this)
         }
         else if (this.isPlaying) {

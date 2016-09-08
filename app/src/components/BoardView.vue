@@ -20,7 +20,7 @@
 
           <div class="nav-right nav-menu">
             <span class="nav-item">
-              <a class="button" href="#">
+              <a class="button" v-on:click="openExternalLink('https://github.com/bojjenclon/SoundBoard')" href="#">
                 <span class="icon">
                   <i class="fa fa-github"></i>
                 </span>
@@ -100,12 +100,42 @@
   import PlayButton from './BoardView/PlayButton'
   import SoundModal from './BoardView/SoundModal'
 
+  const {shell} = require('electron')
+  const fs = require('fs')
   const storage = require('electron-json-storage')
-
   const howler = require('howler')
 
   var playingSound = null
   var soundCache = {}
+
+  function fileExists(filePath) {
+    try {
+      return fs.statSync(filePath).isFile()
+    }
+    catch (error) {
+      return false
+    }
+  }
+
+  function validateData(data) {
+    for (var i = 0; i < data.length; i++) {
+      var page = data[i]
+
+      for (var j = 0; j < page.length; j++) {
+        var button = page[j]
+
+        if (!fileExists(button.image)) {
+          button.image = null
+        }
+
+        if (!fileExists(button.sound)) {
+          button.sound = null
+        }
+      }
+    }
+
+    return data
+  }
 
   function changePage(options) {
     if (options.pageIndex < 0 || options.pageIndex >= options.caller.totalPages) {
@@ -118,14 +148,27 @@
   function playSound(options) {
     stopSound(options.caller)
 
-    if (!(options.path in soundCache)) {
+    if (options.path in soundCache) {
+      playSoundHelper(options)
+    }
+    else if (fileExists(options.path)) {
       var howl = new howler.Howl({
-        src: [options.path]
+        src: [options.path],
+        onloaderror: function (id, error) {
+          console.log('Howler failed with error code: ' + error)
+        }
       })
 
       soundCache[options.path] = howl
-    }
 
+      playSoundHelper(options)
+    }
+    else {
+      console.log('The file at "' + options.path + '" does not exist.')
+    }
+  }
+
+  function playSoundHelper(options) {
     playingSound = {
       buttonIndex: options.index,
       howl: soundCache[options.path]
@@ -223,7 +266,7 @@
                 throw error
               }
               
-              transition.next({ buttons: data })
+              transition.next({ buttons: validateData(data) })
             })
           }
           else {
@@ -289,6 +332,10 @@
     },
 
     methods: {
+      'openExternalLink': function (url) {
+        shell.openExternal(url)
+      },
+
       'mouseWheel': function (event) {
         var e = window.event || event
         var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))
