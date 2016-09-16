@@ -4,9 +4,9 @@ SoundBoard is an Electron application built with [Vue.js](https://vuejs.org/) an
 
 ---
 
-## Preview
+## Preview:
 
-To-do: add image
+![Preview image of SoundBoard application](/preview.png?raw=true)
 
 ---
 
