@@ -1,3 +1,7 @@
+# WARNING
+
+This project is being remade. This repo will be kept for posterity, but it will no longer be supported.
+
 # SoundBoard
 
 SoundBoard is an Electron application built with [Vue.js](https://vuejs.org/) and [Bulma](http://bulma.io/). It allows the user to assign local audio files to configurable buttons (with optional image backgrounds) and quickly play them back with a click.
